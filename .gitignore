@@ -1,5 +1,6 @@
 /.idea/
 /.vs/
 /packages/
-/MysteriousCallouts/bin
+/bin/
 /MysteriousCallouts/obj
+/obj/
