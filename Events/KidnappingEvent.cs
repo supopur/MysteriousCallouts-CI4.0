@@ -43,7 +43,6 @@ namespace MysteriousCallouts.Events
 
         internal static string[] vehicleModels = new string[]
         {
-            "PRAIRIE", "EXEMPLAR", "ORACLE", "PREVION","DOMINATOR", "GAUNTLET",
             "ASTEROPE", "PREMIER", "TAILGATER", "WASHINGTON", "BUFFALO", "CALICO", "KURUMA",
             "SULTAN", "SPEEDO","SPEEDO4","YOUGA3","SURFER","RUMPO","SCHWARZER","SADLER","SADLER2","REBEL2","SEMINOLE","DILETTANTE","RANCHERXL","MINIVAN","CAVALCADE2"
         };
@@ -103,7 +102,7 @@ namespace MysteriousCallouts.Events
                 out float outheading, 1, 3.0f, 0);
             SuspectVehicle = new Vehicle(vehicleModels[rndm.Next(vehicleModels.Length)], spawn, outheading);
             SuspectVehicle.IsPersistent = true;
-            Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"SuspectVehicle model: {SuspectVehicle.Model.ToString()}");
+            Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"SuspectVehicle model: {SuspectVehicle.Model.Name.ToString()}");
             Suspect = new Citizen(suspectModels[rndm.Next(suspectModels.Length)], Vector3.Zero);
             int num = rndm.Next(1, 101);
             if (num <= 50)
