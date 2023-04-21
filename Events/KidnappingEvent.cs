@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Net;
 using LSPD_First_Response.Mod.API;
 using MysteriousCallouts.HelperSystems;
 using Rage;
@@ -14,7 +15,7 @@ namespace MysteriousCallouts.Events
         internal static Ped Suspect;
         internal static Vehicle SuspectVehicle;
         internal static Ped Hostage;
-        internal static Ped Player => Game.LocalPlayer.Character;
+        internal static Ped MainPlayer => Game.LocalPlayer.Character;
 
         internal static string[] AnonymousTips = new string[]
         {
@@ -97,10 +98,10 @@ namespace MysteriousCallouts.Events
 
         internal static void SetupVehicleWithHostage()
         {
-            Vector3 spawn = World.GetNextPositionOnStreet(Game.LocalPlayer.Character.Position.Around(1350f));
+            Vector3 spawn = World.GetNextPositionOnStreet(MainPlayer.Position.Around(1350f));
             NativeFunction.Natives.GetClosestVehicleNodeWithHeading(spawn, out Vector3 nodePosition,
                 out float outheading, 1, 3.0f, 0);
-            Vehicle SuspectVehicle = new Vehicle(vehicleModels[rndm.Next(vehicleModels.Length)], spawn, outheading);
+            SuspectVehicle = new Vehicle(vehicleModels[rndm.Next(vehicleModels.Length)], spawn, outheading);
             SuspectVehicle.IsPersistent = true;
             Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"SuspectVehicle model: {SuspectVehicle.Model.ToString()}");
             Suspect = new Ped(suspectModels[rndm.Next(suspectModels.Length)], Vector3.Zero, 69);
@@ -130,11 +131,13 @@ namespace MysteriousCallouts.Events
             AnonymousTip.AllPeds.Add(Suspect);
             AnonymousTip.AllPeds.Add(Hostage);
             Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs","Waiting for player to be in range");
-            while(Player.DistanceTo(SuspectVehicle.Position) >= 10f) {GameFiber.Wait(0);}
-            ScenarioChooser();
+            //while(Player.DistanceTo(SuspectVehicle.Position) >= 10f) {GameFiber.Wait(0);}
+            string chosenScenario = ScenarioChooser();
+            while(!IsSuspectPulledOver()) {GameFiber.Wait(0);}
+            RunScenario(chosenScenario);
         }
 
-        internal static void ScenarioChooser()
+        internal static string ScenarioChooser()
         {
             
             DecisionNode slowVehicleArmedPulloverDecisionNode = new AttributeNode("Suicidal", true,
@@ -151,14 +154,19 @@ namespace MysteriousCallouts.Events
             
             Dictionary<string, object> inputs = new Dictionary<string, object>()
             {
-                {"Armed",Suspect.Inventory.HasLoadedWeapon},
-                {"VehicleType", IsVehicleSlow(SuspectVehicle)},
+                {"Armed",IsSuspectArmed()},
+                {"VehicleType", IsVehicleSlow()},
                 {"Suicidal",IsSuspectSuicidal()},
                 {"ShouldFleeOnFoot",WillSuspectFlee()}
             };
             string decision = rootNode.Evaluate(inputs);
-            Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"Decision: {decision}");
-            switch (decision)
+            Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"Decision: {IPHelper.Encrypt(decision)}");
+            return decision;
+        }
+
+        internal static void RunScenario(string chosenScenario)
+        {
+            switch (chosenScenario)
             {
                 case "shootout":
                     Scenario_Shootout();
@@ -169,16 +177,19 @@ namespace MysteriousCallouts.Events
                 case "commit":
                     Scenario_Commit();
                     break;
+                case "foot_bail":
+                    Scenario_FootBail();
+                    break;
                 default:
-                    Scenario_Pursuit();
+                    Scenario_Surrender();
                     break;
             }
         }
-
+        
         internal static void Scenario_Pursuit()
         {
             
-            Logger.Normal("Scenario_Pursuit() in KidnappingEvent.cs","Player is within distance of Suspect. Starting pursuit");
+            Logger.Normal("Scenario_Pursuit() in KidnappingEvent.cs","Player pulled over Suspect. Starting pursuit");
             foreach (Blip b in AnonymousTip.AllBlips)
             {
                 if (b.Entity.Equals(SuspectVehicle))
@@ -187,29 +198,56 @@ namespace MysteriousCallouts.Events
                     break;
                 }
             }
-            LHandle Pursuit = HelperMethods.CreatePursuit(false, Suspect);
+            LHandle Pursuit = HelperMethods.CreatePursuit(true, Suspect);
             while(IsPursuitRunning(Pursuit)) {GameFiber.Wait(0);}
             Logger.Normal("Scenario_Pursuit() in KidnappingEvent.cs","Pursuit is over");
         }
-
+        
         internal static void Scenario_Shootout()
         {
-            Logger.Normal("Scenario_Shootout() in KidnappingEvent.cs","Player is within distance of Suspect. Starting shootout");
+            Logger.Normal("Scenario_Shootout() in KidnappingEvent.cs","Player pulled over Suspect. Starting shootout");
+            Functions.ForceEndCurrentPullover();
             Suspect.Tasks.ParkVehicle(SuspectVehicle, SuspectVehicle.Position, SuspectVehicle.Heading).WaitForCompletion();
             Suspect.Tasks.LeaveVehicle(SuspectVehicle, LeaveVehicleFlags.LeaveDoorOpen).WaitForCompletion();
-            Suspect.RelationshipGroup.SetRelationshipWith(Game.LocalPlayer.Character.RelationshipGroup, Relationship.Hate);
+            Suspect.RelationshipGroup.SetRelationshipWith(MainPlayer.RelationshipGroup, Relationship.Hate);
             Suspect.RelationshipGroup.SetRelationshipWith(Hostage.RelationshipGroup, Relationship.Hate);
             Suspect.RelationshipGroup.SetRelationshipWith(RelationshipGroup.Cop, Relationship.Hate);
             Suspect.Tasks.FightAgainstClosestHatedTarget(100f, -1);
+            while (!Suspect.IsCuffed && !Suspect.IsDead) { GameFiber.Wait(0); }
+            Logger.Normal("Scenario_Shootout() in KidnappingEvent.cs","Shootout Over");
         }
 
         internal static void Scenario_Commit()
         {
-            Logger.Normal("Scenario_Commit() in KidnappingEvent.cs","Player is within distance of Suspect. Starting commit");
+            Logger.Normal("Scenario_Commit() in KidnappingEvent.cs","Player pulled over Suspect. Starting commit");
+            Functions.ForceEndCurrentPullover();
             Suspect.Tasks.FireWeaponAt(Hostage, 3, FiringPattern.FullAutomatic).WaitForCompletion();
             Suspect.Tasks.PlayAnimation(new AnimationDictionary("mp_suicide"), "pill", 5f, AnimationFlags.None);
             GameFiber.Wait(2500);
             Suspect.Kill();
+            Logger.Normal("Scenario_Commit() in KidnappingEvent.cs","Player pulled over Suspect. Suspect committed");
+        }
+
+        internal static void Scenario_FootBail()
+        {
+            Logger.Normal("Scenario_FootBail() in KidnappingEvent.cs","Player pulled over Suspect. Starting foot bail");
+            Functions.ForceEndCurrentPullover();
+            Suspect.Tasks.ParkVehicle(SuspectVehicle, SuspectVehicle.Position, SuspectVehicle.Heading).WaitForCompletion();
+            Suspect.Tasks.LeaveVehicle(SuspectVehicle, LeaveVehicleFlags.LeaveDoorOpen).WaitForCompletion();
+            LHandle Pursuit = HelperMethods.CreatePursuit(true, Suspect);
+            while(IsPursuitRunning(Pursuit)) {GameFiber.Wait(0);}
+            Logger.Normal("Scenario_FootBail() in KidnappingEvent.cs","Ending foot bail");
+        }
+
+        internal static void Scenario_Surrender()
+        {
+            Logger.Normal("Scenario_Surrender in KidnappingEvent.cs","Player pulled over Suspect. Suspect surrendering");
+            Functions.ForceEndCurrentPullover();
+            Suspect.Tasks.ParkVehicle(SuspectVehicle, SuspectVehicle.Position, SuspectVehicle.Heading).WaitForCompletion();
+            Suspect.Tasks.LeaveVehicle(SuspectVehicle, LeaveVehicleFlags.LeaveDoorOpen).WaitForCompletion();
+            Suspect.Tasks.PutHandsUp(-1, MainPlayer);
+            while (!Suspect.IsCuffed && !Suspect.IsDead) { GameFiber.Wait(0); }
+            Logger.Normal("Scenario_Surrender in KidnappingEvent.cs","Ending surrender scenario");
         }
 
         internal static string GetRandomTip() => AnonymousTips[rndm.Next(AnonymousTips.Length)];
@@ -221,7 +259,9 @@ namespace MysteriousCallouts.Events
         internal static bool IsSuspectSuicidal() => Suspect.IsMale ? rndm.Next(1, 101) <= 60 : rndm.Next(1, 101) <= 30;
 
         internal static bool WillSuspectFlee() => rndm.Next(1, 101) <= 50;
-        internal static bool IsVehicleSlow(Vehicle vehicle)
+
+        internal static bool IsSuspectArmed() => Suspect.Inventory.EquippedWeapon == null ? true : false;
+        internal static bool IsVehicleSlow()
         {
             List<VehicleClass> SlowVehicleClasses = new List<VehicleClass>()
             {
@@ -230,7 +270,16 @@ namespace MysteriousCallouts.Events
                 VehicleClass.SUV,
                 VehicleClass.OffRoad
             };
-            return SlowVehicleClasses.Contains(vehicle.Class);
+            return SlowVehicleClasses.Contains(SuspectVehicle.Class);
+        }
+
+        internal static bool IsSuspectPulledOver()
+        {
+            if (Functions.IsPlayerPerformingPullover())
+            {
+                return Functions.GetPulloverSuspect(Functions.GetCurrentPullover()).Equals(Suspect);
+            }
+            return false;
         }
 
     }

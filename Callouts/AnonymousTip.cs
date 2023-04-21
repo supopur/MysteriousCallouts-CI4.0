@@ -43,28 +43,32 @@ namespace MysteriousCallouts.Callouts
             Logger.Normal("OnCalloutAccepted() in AnonymousTip.cs",$"Encrypted IP: {EncryptedIP}");
             string tipMSG = $"{KidnappingEvent.GetRandomTip()} Complete the objective or suffer the consequences. Here is your first clue: {EncryptedIP}";
             Game.DisplayNotification("mparcadecabinetgrid","phone_anim_1","NOTIFICATION",$"By {KidnappingEvent.GetRandomPhoneNumber()}",tipMSG);
-            StartDecryptionProcess();
-            GameFiber.WaitUntil(CheckpointStatus);
-            KidnappingEvent.SetupVehicleWithHostage();
+            Callout();
             return base.OnCalloutAccepted();
         }
-        
+
+        public override void OnCalloutNotAccepted()
+        {
+            Logger.Normal("OnCalloutNotAccepted() in AnonymousTip.cs", "Callout not accepted by user");
+            base.OnCalloutNotAccepted();
+        }
+
+        internal void Callout()
+        {
+            StartDecryptionProcess();
+            KidnappingEvent.SetupVehicleWithHostage();
+            End();
+        }
         
         internal static bool IsIPPIngSuccessful() => SuccessfulIPPing;
         internal static bool IsDecryptionSuccessful() => SuccessfulDecryption;
-
-        internal static bool CheckpointStatus() => SuccessfulIPPing && SuccessfulDecryption;
-
-        internal static bool StartDecryptionProcess()
+        
+        internal static void StartDecryptionProcess()
         {
-            GameFiber.StartNew(delegate
-            {
                 IPHelper.HelpWithDecryption();
                 GameFiber.WaitUntil(IsDecryptionSuccessful);
                 IPHelper.HelpWithIPPing();
                 GameFiber.WaitUntil(IsIPPIngSuccessful);
-            });
-            return IsIPPIngSuccessful() && IsDecryptionSuccessful();
         }
             
 
@@ -103,10 +107,10 @@ namespace MysteriousCallouts.Callouts
 
         public override void End()
         {
-            base.End();
             DeleteALlBlips();
             DismissALlPeds();
             Logger.Normal("End() in AnonymousTip.cs","Ending anonymous tip callout");
+            base.End();
         }
     }
 }
