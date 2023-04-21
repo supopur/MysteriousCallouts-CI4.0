@@ -33,7 +33,8 @@ namespace MysteriousCallouts.HelperSystems
             }
             else
             {
-                throw new ArgumentException($"Missing input value for attribute {attributeName}");
+                Logger.Error("Evaluate() in DecisionTre.cs",$"Missing input value for attribute {attributeName}");
+                throw new ArgumentException();
             }
         }
     }

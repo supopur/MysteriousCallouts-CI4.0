@@ -60,7 +60,7 @@ namespace MysteriousCallouts.HelperSystems
         internal static void HelpWithIPPing()
         {
             Game.DisplaySubtitle("Stop you car", 2500);
-            Game.DisplaySubtitle("Open your RAGE Console. Type in PingIP. ADD SPACE. Paste in decrypted IP address(automatically copied for you).",3500);
+            Game.DisplaySubtitle("~g~Open your RAGE Console. Type in PingIP. ADD SPACE. Paste in decrypted IP address(automatically copied for you).",3500);
         }
 
 

@@ -138,22 +138,25 @@ namespace MysteriousCallouts.Events
 
         internal static string ScenarioChooser()
         {
-
+            
             DecisionNode suicideFastCarDecisionNode = new AttributeNode("Suicidal", true,
                 new DecisionLeaf("commit"), new DecisionLeaf("surrender"));
             
-            DecisionNode fastVehicleNode = new AttributeNode("ShouldFlee", true,new DecisionLeaf("pursuit"),suicideFastCarDecisionNode);
-            
-            DecisionNode suicideDecisionNode = new AttributeNode("Suicidal", true,
-                new DecisionLeaf("commit"), new DecisionLeaf("foot_bail"));
-            
             DecisionNode ShouldFleeOnFootNode = new AttributeNode("ShouldFlee", "true",
                 new DecisionLeaf("foot_bail"), new DecisionLeaf("surrender"));
+            
+            DecisionNode fastArmedNode =
+                new AttributeNode("Armed", true, suicideFastCarDecisionNode, new DecisionLeaf("surrender"));
+            
+            DecisionNode fastVehicleNode = new AttributeNode("ShouldFlee", true,new DecisionLeaf("pursuit"),fastArmedNode);
+            
+            DecisionNode suicideDecisionNode = new AttributeNode("Suicidal", true,
+                new DecisionLeaf("commit"), ShouldFleeOnFootNode);
 
             DecisionNode ArmedNode =
                 new AttributeNode("Armed", true, suicideDecisionNode, ShouldFleeOnFootNode);
 
-            /*Vehicle Slownes*/ DecisionNode rootNode = new AttributeNode("VehicleType", true, ArmedNode,
+            DecisionNode isVehicleSlowNode = new AttributeNode("VehicleType", true, ArmedNode,
                 fastVehicleNode);
             
             Dictionary<string, object> inputs = new Dictionary<string, object>()
@@ -163,7 +166,7 @@ namespace MysteriousCallouts.Events
                 {"Suicidal",Suspect.IsSuspectSuicidal},
                 {"ShouldFlee",Suspect.WillSuspectFlee}
             };
-            string decision = rootNode.Evaluate(inputs);
+            string decision = isVehicleSlowNode.Evaluate(inputs);
             Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"Decision: {IPHelper.Encrypt(decision)}");
             return decision;
         }
@@ -237,8 +240,11 @@ namespace MysteriousCallouts.Events
             Logger.Normal("Scenario_FootBail() in KidnappingEvent.cs","Player pulled over Suspect. Starting foot bail");
             Functions.ForceEndCurrentPullover();
             Suspect.Tasks.ParkVehicle(SuspectVehicle, SuspectVehicle.Position, SuspectVehicle.Heading).WaitForCompletion();
-            Suspect.Tasks.LeaveVehicle(SuspectVehicle, LeaveVehicleFlags.LeaveDoorOpen).WaitForCompletion();
-            LHandle Pursuit = HelperMethods.CreatePursuit(true, Suspect);
+            Suspect.Tasks.LeaveVehicle(SuspectVehicle, LeaveVehicleFlags.LeaveDoorOpen);
+            Hostage.Tasks.LeaveVehicle(SuspectVehicle, LeaveVehicleFlags.LeaveDoorOpen).WaitForCompletion();
+            Hostage.Tasks.PutHandsUp(-1,MainPlayer);
+            Suspect.ClearLastVehicle();
+            LHandle Pursuit = HelperMethods.CreatePursuit(false, Suspect);
             while(IsPursuitRunning(Pursuit)) {GameFiber.Wait(0);}
             Logger.Normal("Scenario_FootBail() in KidnappingEvent.cs","Ending foot bail");
         }

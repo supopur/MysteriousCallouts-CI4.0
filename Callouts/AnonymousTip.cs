@@ -69,9 +69,12 @@ namespace MysteriousCallouts.Callouts
         internal static void StartDecryptionProcess()
         {
                 IPHelper.HelpWithDecryption();
-                GameFiber.WaitUntil(IsDecryptionSuccessful);
+                while(!IsDecryptionSuccessful()){GameFiber.Wait(0);}
                 IPHelper.HelpWithIPPing();
-                GameFiber.WaitUntil(IsIPPIngSuccessful);
+                while(!IsIPPIngSuccessful()){GameFiber.Wait(0);}
+                SuccessfulIPPing = false;
+                SuccessfulDecryption = false;
+                
         }
             
 
