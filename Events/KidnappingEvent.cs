@@ -12,9 +12,9 @@ namespace MysteriousCallouts.Events
 {
     internal static class KidnappingEvent
     {
-        internal static Ped Suspect;
+        internal static Citizen Suspect;
         internal static Vehicle SuspectVehicle;
-        internal static Ped Hostage;
+        internal static Citizen Hostage;
         internal static Ped MainPlayer => Game.LocalPlayer.Character;
 
         internal static string[] AnonymousTips = new string[]
@@ -104,7 +104,7 @@ namespace MysteriousCallouts.Events
             SuspectVehicle = new Vehicle(vehicleModels[rndm.Next(vehicleModels.Length)], spawn, outheading);
             SuspectVehicle.IsPersistent = true;
             Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"SuspectVehicle model: {SuspectVehicle.Model.ToString()}");
-            Suspect = new Ped(suspectModels[rndm.Next(suspectModels.Length)], Vector3.Zero, 69);
+            Suspect = new Citizen(suspectModels[rndm.Next(suspectModels.Length)], Vector3.Zero);
             int num = rndm.Next(1, 101);
             if (num <= 50)
             {
@@ -112,7 +112,7 @@ namespace MysteriousCallouts.Events
                 Suspect.Inventory.GiveNewWeapon(weapons[rndm.Next(weapons.Length)], -1, true);
                 Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"Giving suspect gun");
             }
-            Hostage = new Ped(hostageModels[rndm.Next(hostageModels.Length)], Vector3.Zero, 69);
+            Hostage = new Citizen(hostageModels[rndm.Next(hostageModels.Length)], Vector3.Zero);
             Suspect.BlockPermanentEvents = true;
             Hostage.BlockPermanentEvents = true;
             Suspect.IsPersistent = true;
@@ -139,25 +139,30 @@ namespace MysteriousCallouts.Events
 
         internal static string ScenarioChooser()
         {
-            
-            DecisionNode slowVehicleArmedPulloverDecisionNode = new AttributeNode("Suicidal", true,
-                new DecisionLeaf("commit"), new DecisionLeaf("foot_bail"));
 
-            DecisionNode ShouldFleeOnFootNode = new AttributeNode("ShouldFleeOnFoot", "true",
+            DecisionNode suicideFastCarDecisionNode = new AttributeNode("Suicidal", true,
+                new DecisionLeaf("commit"), new DecisionLeaf("surrender"));
+            
+            DecisionNode fastVehicleNode = new AttributeNode("ShouldFlee", true,new DecisionLeaf("pursuit"),suicideFastCarDecisionNode);
+            
+            DecisionNode suicideDecisionNode = new AttributeNode("Suicidal", true,
+                new DecisionLeaf("commit"), new DecisionLeaf("foot_bail"));
+            
+            DecisionNode ShouldFleeOnFootNode = new AttributeNode("ShouldFlee", "true",
                 new DecisionLeaf("foot_bail"), new DecisionLeaf("surrender"));
 
-            DecisionNode armedNode =
-                new AttributeNode("Armed", true, slowVehicleArmedPulloverDecisionNode, ShouldFleeOnFootNode);
+            DecisionNode ArmedNode =
+                new AttributeNode("Armed", true, suicideDecisionNode, ShouldFleeOnFootNode);
 
-            /*Vehicle Slownes*/ DecisionNode rootNode = new AttributeNode("VehicleType", true, armedNode,
-                new DecisionLeaf("pursuit"));
+            /*Vehicle Slownes*/ DecisionNode rootNode = new AttributeNode("VehicleType", true, ArmedNode,
+                fastVehicleNode);
             
             Dictionary<string, object> inputs = new Dictionary<string, object>()
             {
                 {"Armed",IsSuspectArmed()},
                 {"VehicleType", IsVehicleSlow()},
-                {"Suicidal",IsSuspectSuicidal()},
-                {"ShouldFleeOnFoot",WillSuspectFlee()}
+                {"Suicidal",Suspect.IsSuspectSuicidal},
+                {"ShouldFlee",Suspect.WillSuspectFlee}
             };
             string decision = rootNode.Evaluate(inputs);
             Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"Decision: {IPHelper.Encrypt(decision)}");
@@ -255,11 +260,7 @@ namespace MysteriousCallouts.Events
         internal static string GetRandomPhoneNumber() => PhoneNumbers[rndm.Next(PhoneNumbers.Length)];
 
         internal static bool IsPursuitRunning(LHandle handle) => Functions.IsPursuitStillRunning(handle);
-
-        internal static bool IsSuspectSuicidal() => Suspect.IsMale ? rndm.Next(1, 101) <= 60 : rndm.Next(1, 101) <= 30;
-
-        internal static bool WillSuspectFlee() => rndm.Next(1, 101) <= 50;
-
+        
         internal static bool IsSuspectArmed() => Suspect.Inventory.EquippedWeapon == null ? true : false;
         internal static bool IsVehicleSlow()
         {

@@ -52,6 +52,7 @@
         <Compile Include="Events\BrokenDownVehicleEvent.cs" />
         <Compile Include="Events\KidnappingEvent.cs" />
         <Compile Include="HelperMethods.cs" />
+        <Compile Include="HelperSystems\Citizen.cs" />
         <Compile Include="HelperSystems\DecisionTree.cs" />
         <Compile Include="HelperSystems\DialogueSystem.cs" />
         <Compile Include="HelperSystems\IPHelper.cs" />

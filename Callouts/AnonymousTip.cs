@@ -55,9 +55,12 @@ namespace MysteriousCallouts.Callouts
 
         internal void Callout()
         {
-            StartDecryptionProcess();
-            KidnappingEvent.SetupVehicleWithHostage();
-            End();
+            GameFiber.StartNew(delegate
+            {
+                StartDecryptionProcess();
+                KidnappingEvent.SetupVehicleWithHostage();
+                End();
+            });
         }
         
         internal static bool IsIPPIngSuccessful() => SuccessfulIPPing;
