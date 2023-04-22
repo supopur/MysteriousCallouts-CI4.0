@@ -90,7 +90,6 @@ namespace MysteriousCallouts.Events
             "WEAPON_SMG",
             "WEAPON_SMG_MK2",
             "WEAPON_MICROSMG",
-            "WEAPON_COMPACTRIFLE",
         };
         
         internal static Random rndm = new Random(DateTime.Now.Millisecond);
@@ -118,6 +117,7 @@ namespace MysteriousCallouts.Events
             Hostage.IsPersistent = true;
             Hostage.WarpIntoVehicle(SuspectVehicle, 0);
             Suspect.WarpIntoVehicle(SuspectVehicle, -1);
+            Functions.SetPedCuffedTask(Hostage, true);
             Suspect.Tasks.CruiseWithVehicle(SuspectVehicle, 10f,
                 VehicleDrivingFlags.Emergency | VehicleDrivingFlags.AllowMedianCrossing |
                 VehicleDrivingFlags.RespectIntersections | VehicleDrivingFlags.AvoidHighways);
@@ -228,7 +228,9 @@ namespace MysteriousCallouts.Events
         {
             Logger.Normal("Scenario_Commit() in KidnappingEvent.cs","Player pulled over Suspect. Starting commit");
             Functions.ForceEndCurrentPullover();
-            Suspect.Tasks.FireWeaponAt(Hostage, 3, FiringPattern.FullAutomatic).WaitForCompletion();
+            Suspect.Tasks.ParkVehicle(SuspectVehicle, SuspectVehicle.Position, SuspectVehicle.Heading).WaitForCompletion();
+            Suspect.Tasks.LeaveVehicle(SuspectVehicle, LeaveVehicleFlags.LeaveDoorOpen).WaitForCompletion();
+            Suspect.Tasks.FireWeaponAt(Hostage, 3500, FiringPattern.FullAutomatic).WaitForCompletion();
             Suspect.Tasks.PlayAnimation(new AnimationDictionary("mp_suicide"), "pill", 5f, AnimationFlags.None);
             GameFiber.Wait(2500);
             Suspect.Kill();
@@ -281,7 +283,8 @@ namespace MysteriousCallouts.Events
 
         internal static bool IsSuspectPulledOver()
         {
-            if (Functions.IsPlayerPerformingPullover())
+            LHandle handle = Functions.GetCurrentPullover();
+            if (handle != null)
             {
                 return Functions.GetPulloverSuspect(Functions.GetCurrentPullover()).Equals(Suspect);
             }

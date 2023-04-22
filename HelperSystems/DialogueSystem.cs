@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Rage;
 
 namespace MysteriousCallouts.HelperSystems
 {
@@ -13,14 +14,10 @@ namespace MysteriousCallouts.HelperSystems
             this.Dialogue = Dialogue;
         }
 
-        internal void DisplayDialogue()
-        {
-            
-        }
+        internal void DisplayDialogue() => Game.DisplaySubtitle(Dialogue[index]);
 
-        internal void AdvanceDialogue()
-        {
-            
-        }
+        internal void AdvanceDialogue() => index++;
+
+        internal void RewindDialogue() => index--;
     }
 }

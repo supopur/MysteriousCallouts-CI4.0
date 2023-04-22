@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MysteriousCallouts.Callouts;
 using MysteriousCallouts.HelperSystems;
 using Rage;
@@ -61,15 +62,21 @@ namespace MysteriousCallouts.Events
 
         internal static void MainEvent()
         {
-            GameFiber.StartNew(delegate
-            {
                 while (Player.DistanceTo(Suspect) >= 30f) GameFiber.Wait(0);
                 Suspect.Tasks.LeaveVehicle(SuspectVeh, LeaveVehicleFlags.None).WaitForCompletion();
                 NativeFunction.Natives.TASK_TURN_PED_TO_FACE_ENTITY(Suspect, Player, -1);
-                    
-                
-                
-            });
+                List<string> suspectSuicide = new List<string>()
+                {
+                    "~b~Officer:~w~ Hello. What is wrongw with your car? Also, what is with the weird message that you sent me?",
+                    "~b~Owner:~w~ What message? I don't know what message you are talking about",
+                    $"~b~Officer:~w~ Do not play stupid with me. You know what message you sent me: {AnonymousTip.msg}",
+                    "~r~Suspect:~w~ Oh. thats very odd. You know...you will never save the true victim."
+                };
+                List<string> suspect = new List<string>()
+                {
+
+                };
+        
         }
         
         

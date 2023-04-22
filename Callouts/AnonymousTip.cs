@@ -20,7 +20,7 @@ namespace MysteriousCallouts.Callouts
         internal static string EncryptedIP;
         internal static List<Blip> AllBlips = new List<Blip>();
         internal static List<Ped> AllPeds = new List<Ped>();
-        
+        internal static string msg = "";
         public override bool OnBeforeCalloutDisplayed()
         {
             CalloutMessage = "Anonymous Tip";
@@ -42,6 +42,7 @@ namespace MysteriousCallouts.Callouts
             Game.SetClipboardText(EncryptedIP);
             Logger.Normal("OnCalloutAccepted() in AnonymousTip.cs",$"Encrypted IP: {EncryptedIP}");
             string tipMSG = $"{KidnappingEvent.GetRandomTip()} Complete the objective or suffer the consequences. Here is your first clue: {EncryptedIP}";
+            msg = tipMSG;
             Game.DisplayNotification("mparcadecabinetgrid","phone_anim_1","NOTIFICATION",$"By {KidnappingEvent.GetRandomPhoneNumber()}",tipMSG);
             Callout();
             return base.OnCalloutAccepted();
