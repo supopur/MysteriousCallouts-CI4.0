@@ -29,11 +29,12 @@ namespace MysteriousCallouts.HelperSystems
             object value;
             if (inputs.TryGetValue(attributeName, out value))
             {
+                Logger.Normal("Evaluate() in DecisionTree.cs",$"{value.ToString()}");
                 return value.Equals(attributeValue) ? trueBranch.Evaluate(inputs) : falseBranch.Evaluate(inputs);
             }
             else
             {
-                Logger.Error("Evaluate() in DecisionTre.cs",$"Missing input value for attribute {attributeName}");
+                Logger.Error("Evaluate() in DecisionTree.cs",$"Missing input value for attribute {attributeName}");
                 throw new ArgumentException();
             }
         }

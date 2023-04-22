@@ -15,8 +15,8 @@ namespace MysteriousCallouts.Callouts
     internal class AnonymousTip : Callout
     {
         internal static Random rndm = new Random(DateTime.Now.Millisecond);
-        internal static bool SuccessfulIPPing = false;
-        internal static bool SuccessfulDecryption = false;
+        internal static bool SuccessfulIPPing = true;
+        internal static bool SuccessfulDecryption = true;
         internal static string EncryptedIP;
         internal static List<Blip> AllBlips = new List<Blip>();
         internal static List<Ped> AllPeds = new List<Ped>();
@@ -73,9 +73,9 @@ namespace MysteriousCallouts.Callouts
                 while(!IsDecryptionSuccessful()){GameFiber.Wait(0);}
                 IPHelper.HelpWithIPPing();
                 while(!IsIPPIngSuccessful()){GameFiber.Wait(0);}
-                SuccessfulIPPing = false;
+                /*SuccessfulIPPing = false;
                 SuccessfulDecryption = false;
-                
+                */
         }
             
 

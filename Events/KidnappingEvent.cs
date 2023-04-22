@@ -92,7 +92,7 @@ namespace MysteriousCallouts.Events
             "WEAPON_MICROSMG",
         };
         
-        internal static Random rndm = new Random(DateTime.Now.Millisecond);
+        internal static Random rndm => new Random(DateTime.Now.Millisecond);
 
         internal static void SetupVehicleWithHostage()
         {
@@ -103,11 +103,11 @@ namespace MysteriousCallouts.Events
             SuspectVehicle.IsPersistent = true;
             Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"SuspectVehicle model: {SuspectVehicle.Model.Name.ToString()}");
             Suspect = new Citizen(suspectModels[rndm.Next(suspectModels.Length)], Vector3.Zero);
+            Suspect.Inventory.Weapons.Clear();
             int num = rndm.Next(1, 101);
             if (num <= 50)
             {
-                Suspect.Inventory.Weapons.Clear();
-                Suspect.Inventory.GiveNewWeapon(weapons[rndm.Next(weapons.Length)], -1, true);
+                Suspect.Inventory.GiveNewWeapon(weapons[rndm.Next(weapons.Length)], 200, true);
                 Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"Giving suspect gun");
             }
             Hostage = new Citizen(hostageModels[rndm.Next(hostageModels.Length)], Vector3.Zero);
@@ -139,14 +139,13 @@ namespace MysteriousCallouts.Events
         internal static string ScenarioChooser()
         {
             
-            DecisionNode suicideFastCarDecisionNode = new AttributeNode("Suicidal", true,
-                new DecisionLeaf("commit"), new DecisionLeaf("surrender"));
+            
             
             DecisionNode ShouldFleeOnFootNode = new AttributeNode("ShouldFlee", "true",
                 new DecisionLeaf("foot_bail"), new DecisionLeaf("surrender"));
             
             DecisionNode fastArmedNode =
-                new AttributeNode("Armed", true, suicideFastCarDecisionNode, new DecisionLeaf("surrender"));
+                new AttributeNode("Armed", true, new DecisionLeaf("commit"), new DecisionLeaf("surrender"));
             
             DecisionNode fastVehicleNode = new AttributeNode("ShouldFlee", true,new DecisionLeaf("pursuit"),fastArmedNode);
             
@@ -166,6 +165,9 @@ namespace MysteriousCallouts.Events
                 {"Suicidal",Suspect.IsSuspectSuicidal},
                 {"ShouldFlee",Suspect.WillSuspectFlee}
             };
+            Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"suicide:{Suspect.IsSuspectSuicidal}");
+            Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"flee:{Suspect.WillSuspectFlee}");
+            Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"armed:{IsSuspectArmed()}");
             string decision = isVehicleSlowNode.Evaluate(inputs);
             Logger.Normal("ScenarioChooser() in KidnappingEvent.cs",$"Decision: {IPHelper.Encrypt(decision)}");
             return decision;
@@ -175,14 +177,19 @@ namespace MysteriousCallouts.Events
         {
             switch (chosenScenario)
             {
-                case "shootout":
-                    Scenario_Shootout();
-                    break;
                 case "pursuit":
                     Scenario_Pursuit();
                     break;
                 case "commit":
-                    Scenario_Commit();
+                    bool x = rndm.Next(1, 101) <= 50;
+                    if (x)
+                    {
+                        Scenario_Commit();
+                    }
+                    else
+                    {
+                        Scenario_Shootout();
+                    }
                     break;
                 case "foot_bail":
                     Scenario_FootBail();
@@ -267,8 +274,8 @@ namespace MysteriousCallouts.Events
         internal static string GetRandomPhoneNumber() => PhoneNumbers[rndm.Next(PhoneNumbers.Length)];
 
         internal static bool IsPursuitRunning(LHandle handle) => Functions.IsPursuitStillRunning(handle);
-        
-        internal static bool IsSuspectArmed() => Suspect.Inventory.EquippedWeapon == null ? true : false;
+
+        internal static bool IsSuspectArmed() => Suspect.Inventory.HasLoadedWeapon;
         internal static bool IsVehicleSlow()
         {
             List<VehicleClass> SlowVehicleClasses = new List<VehicleClass>()
