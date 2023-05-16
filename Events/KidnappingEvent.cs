@@ -105,9 +105,10 @@ namespace MysteriousCallouts.Events
             Suspect = new Citizen(suspectModels[rndm.Next(suspectModels.Length)], Vector3.Zero);
             Suspect.Inventory.Weapons.Clear();
             int num = rndm.Next(1, 101);
-            if (num <= 50)
+            if (num <= 80)
             {
                 Suspect.Inventory.GiveNewWeapon(weapons[rndm.Next(weapons.Length)], 200, true);
+                Suspect.IsArmed = true;
                 Logger.Normal("SetupVehicleWithHostage() in KidnappingEvent.cs",$"Giving suspect gun");
             }
             Hostage = new Citizen(hostageModels[rndm.Next(hostageModels.Length)], Vector3.Zero);
@@ -138,9 +139,6 @@ namespace MysteriousCallouts.Events
 
         internal static string ScenarioChooser()
         {
-            
-            
-            
             DecisionNode ShouldFleeOnFootNode = new AttributeNode("ShouldFlee", "true",
                 new DecisionLeaf("foot_bail"), new DecisionLeaf("surrender"));
             
@@ -226,7 +224,7 @@ namespace MysteriousCallouts.Events
             Suspect.RelationshipGroup.SetRelationshipWith(MainPlayer.RelationshipGroup, Relationship.Hate);
             Suspect.RelationshipGroup.SetRelationshipWith(Hostage.RelationshipGroup, Relationship.Hate);
             Suspect.RelationshipGroup.SetRelationshipWith(RelationshipGroup.Cop, Relationship.Hate);
-            Suspect.Tasks.FightAgainstClosestHatedTarget(100f, -1);
+            Suspect.Tasks.FightAgainstClosestHatedTarget(100f, 5000);
             while (!Suspect.IsCuffed && !Suspect.IsDead) { GameFiber.Wait(0); }
             Logger.Normal("Scenario_Shootout() in KidnappingEvent.cs","Shootout Over");
         }
@@ -275,7 +273,7 @@ namespace MysteriousCallouts.Events
 
         internal static bool IsPursuitRunning(LHandle handle) => Functions.IsPursuitStillRunning(handle);
 
-        internal static bool IsSuspectArmed() => Suspect.Inventory.HasLoadedWeapon;
+        internal static bool IsSuspectArmed() => Suspect.IsArmed;
         internal static bool IsVehicleSlow()
         {
             List<VehicleClass> SlowVehicleClasses = new List<VehicleClass>()

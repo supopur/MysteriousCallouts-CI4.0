@@ -20,6 +20,9 @@ namespace MysteriousCallouts
         
         public bool WillSuspectFlee { get; private set; }
         public string Gender { get; private set; }
+        
+        public bool IsArmed { get; set; }
+        
         Random monke = new Random();
         //GENERAL
       
@@ -41,8 +44,9 @@ namespace MysteriousCallouts
             Wanted = pedPersona.Wanted;
             WantedInformation = pedPersona.WantedInformation;
             Gender = pedPersona.Gender.ToString();
-            IsSuspectSuicidal = this.IsMale ? rndm.Next(1, 101) <= 60 : rndm.Next(1, 101) <= 30;
-            WillSuspectFlee = rndm.Next(1, 101) <= 50;
+            IsSuspectSuicidal = rndm.Next(1, 101) <= 70;
+            WillSuspectFlee = rndm.Next(1, 101) <= 40;
+            IsArmed = false;
         }
         public Citizen(Model modelName, Vector3 spawnPoint) : base(spawnPoint, modelName)
         {
@@ -53,8 +57,9 @@ namespace MysteriousCallouts
             Wanted = pedPersona.Wanted;
             WantedInformation = pedPersona.WantedInformation;
             Gender = pedPersona.Gender.ToString();
-            IsSuspectSuicidal = this.IsMale ? rndm.Next(1, 101) <= 60 : rndm.Next(1, 101) <= 30;
-            WillSuspectFlee = rndm.Next(1, 101) <= 50;
+            IsSuspectSuicidal = rndm.Next(1, 101) <= 70;
+            WillSuspectFlee = rndm.Next(1, 101) <= 40;
+            IsArmed = false;
         }
         public Citizen(Vector3 spawnPoint, float heading) : base(spawnPoint, heading)
         {
@@ -65,8 +70,9 @@ namespace MysteriousCallouts
             Wanted = pedPersona.Wanted;
             WantedInformation = pedPersona.WantedInformation;
             Gender = pedPersona.Gender.ToString();
-            IsSuspectSuicidal = this.IsMale ? rndm.Next(1, 101) <= 60 : rndm.Next(1, 101) <= 30;
-            WillSuspectFlee = rndm.Next(1, 101) <= 50;
+            IsSuspectSuicidal = rndm.Next(1, 101) <= 70;
+            WillSuspectFlee = rndm.Next(1, 101) <= 40;
+            IsArmed = false;
         }
         public Citizen(Vector3 spawnPoint, Model modelName, float heading) : base(modelName, spawnPoint, heading)
         {
@@ -77,8 +83,9 @@ namespace MysteriousCallouts
             Wanted = pedPersona.Wanted;
             WantedInformation = pedPersona.WantedInformation;
             Gender = pedPersona.Gender.ToString();
-            IsSuspectSuicidal = this.IsMale ? rndm.Next(1, 101) <= 60 : rndm.Next(1, 101) <= 30;
-            WillSuspectFlee = rndm.Next(1, 101) <= 50;
+            IsSuspectSuicidal = rndm.Next(1, 101) <= 70;
+            WillSuspectFlee = rndm.Next(1, 101) <= 40;
+            IsArmed = false;
         }
         public Citizen(Vector3 spawnPoint) : base(spawnPoint)
         {
@@ -89,8 +96,9 @@ namespace MysteriousCallouts
             Wanted = pedPersona.Wanted;
             WantedInformation = pedPersona.WantedInformation;
             Gender = pedPersona.Gender.ToString();
-            IsSuspectSuicidal = this.IsMale ? rndm.Next(1, 101) <= 60 : rndm.Next(1, 101) <= 30;
-            WillSuspectFlee = rndm.Next(1, 101) <= 50;
+            IsSuspectSuicidal = rndm.Next(1, 101) <= 70;
+            WillSuspectFlee = rndm.Next(1, 101) <= 40;
+            IsArmed = false;
         }
         
 

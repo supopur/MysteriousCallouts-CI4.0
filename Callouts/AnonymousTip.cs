@@ -5,6 +5,7 @@ using LSPD_First_Response.Mod.API;
 using LSPD_First_Response.Mod.Callouts;
 using MysteriousCallouts.Events;
 using MysteriousCallouts.HelperSystems;
+using MysteriousCallouts.HelperSystems.Scaleforms;
 using Rage;
 using Rage.Attributes;
 using Rage.Native;
@@ -21,6 +22,9 @@ namespace MysteriousCallouts.Callouts
         internal static List<Blip> AllBlips = new List<Blip>();
         internal static List<Ped> AllPeds = new List<Ped>();
         internal static string msg = "";
+
+        internal const string lettermsg =
+            "You made it this far. I am shocked. These new gen z cops be kinda dog shit. They do not read. They probably won't even read this. You must be some oldie actual good cop. Anyways. Back to business. I have a hostage. If you want to see them alive, you better find me. Your final clue has been copied to your computer. Good Luck";
         public override bool OnBeforeCalloutDisplayed()
         {
             CalloutMessage = "Anonymous Tip";
@@ -59,6 +63,11 @@ namespace MysteriousCallouts.Callouts
             GameFiber.StartNew(delegate
             {
                 StartDecryptionProcess();
+                if(BrokenDownVehicleEvent.FindSpawnPoint());
+                {
+                    BrokenDownVehicleEvent.Spawning();
+                    BrokenDownVehicleEvent.MainEvent();
+                }
                 KidnappingEvent.SetupVehicleWithHostage();
                 End();
             });
