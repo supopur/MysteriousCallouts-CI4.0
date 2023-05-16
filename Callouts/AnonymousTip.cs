@@ -68,7 +68,6 @@ namespace MysteriousCallouts.Callouts
                     BrokenDownVehicleEvent.Spawning();
                     BrokenDownVehicleEvent.MainEvent();
                 }
-                KidnappingEvent.SetupVehicleWithHostage();
                 End();
             });
         }

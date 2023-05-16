@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Configuration;
+using System.Windows.Forms;
 using Rage;
+using ScaleformsResearch.Movies;
 
 namespace MysteriousCallouts.HelperSystems.Scaleforms
 {
@@ -39,6 +42,13 @@ namespace MysteriousCallouts.HelperSystems.Scaleforms
                 IsThereAnActiveScaleForm = false;
             }
             tests.Remove(x);
+        }
+
+        internal static void WaitForInteractionKeyAndStartPsychScaleform()
+        {
+            while(!Game.IsKeyDown(Keys.Y)) {GameFiber.Wait(0);}
+            PsychologyReport x = new PsychologyReport();
+            ScaleformHandler.Start(x);
         }
 
         internal static bool GetActiveScaleFormStatus => IsThereAnActiveScaleForm;

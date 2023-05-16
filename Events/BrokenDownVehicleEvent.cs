@@ -8,6 +8,7 @@ using LSPD_First_Response.Mod.API;
 using MysteriousCallouts.HelperSystems.Scaleforms;
 using Rage.Native;
 using ScaleformsResearch.Movies;
+using STPFunctions = StopThePed.API.Functions;
 
 namespace MysteriousCallouts.Events
 {
@@ -105,7 +106,6 @@ namespace MysteriousCallouts.Events
                 catch { }
                 Suspect.Tasks.LeaveVehicle(SuspectVeh, LeaveVehicleFlags.None).WaitForCompletion();
                 NativeFunction.Natives.TASK_TURN_PED_TO_FACE_ENTITY(Suspect, MainPlayer, -1);
-                Scenario_GiveUp();
                 switch (rndm.Next(0, 3))
                 {
                     case 0:
@@ -167,14 +167,47 @@ namespace MysteriousCallouts.Events
             GameFiber.Wait(1000);
             Rage.Object Mail = new Rage.Object("prop_cs_envolope_01", Vector3.Zero);
             Mail.IsPersistent = true;
-            Mail.AttachTo(MainPlayer, MainPlayer.GetBoneIndex(PedBoneId.LeftHand), new Vector3(0.1490f, 0.0560f, -0.0100f), new Rotator(-17f, -142f, -151f));
+            Mail.AttachTo(MainPlayer, MainPlayer.GetBoneIndex(PedBoneId.LeftHand), new Vector3(0.1490f, 0.0560f, -0.0100f), new Rotator(-17f, -142f, -151f)); // have to fix
             GameFiber.Wait(1000);
             Suspect.Tasks.Clear();
-            PsychologyReport x = new PsychologyReport();
-            ScaleformHandler.Start(x);
+            ScaleformHandler.WaitForInteractionKeyAndStartPsychScaleform();
             while(!ScaleformHandler.GetActiveScaleFormStatus){GameFiber.Wait(0);}
         }
+
+        internal static void VehicleSearch()
+        {
+            SuspectVeh.Metadata.searchDriver = "~y~Letter";
+            STPFunctions.injectVehicleSearchItems(SuspectVeh);
+            if (SuspectVeh.Exists())
+            {
+                if (SuspectVeh.Doors[0].IsValid())
+                {
+                    while (!SuspectVeh.Doors[0].IsOpen)
+                    {
+                        GameFiber.Wait(0);
+                    }
+                    ScaleformHandler.WaitForInteractionKeyAndStartPsychScaleform();
+                }
+                else
+                {
+                    Game.DisplayNotification("Another officer found a letter in the vehicle. Press Y to read letter");
+                    ScaleformHandler.WaitForInteractionKeyAndStartPsychScaleform();
+                }
+            }
+            else
+            {
+                ScaleformHandler.WaitForInteractionKeyAndStartPsychScaleform();
+            }
+            TransferToKidnappingEvent();
+        }
+
+        internal static void TransferToKidnappingEvent()
+        {
+            while(!ScaleformHandler.GetActiveScaleFormStatus){GameFiber.Wait(0);}
+            KidnappingEvent.SetupVehicleWithHostage();
+        }
         
+
 
     }
 }
