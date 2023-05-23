@@ -64,8 +64,9 @@ namespace MysteriousCallouts
 
         public class Conversation
         {
-            public int startingTrustLevel { get; private set; }
-            
+            public int trustLevel { get; private set; }
+            public int negativeThreshold { get; set; }
+            public int positiveThreshold { get; set; }
             public int numberOfPositive { get; private set; }
             public int numberOfNegative { get; private set; }
             public int numberOfNeutral { get; private set; }
@@ -82,15 +83,32 @@ namespace MysteriousCallouts
                 Keys.NumPad0,Keys.NumPad1,Keys.NumPad2,Keys.NumPad3,Keys.NumPad4,Keys.NumPad5,Keys.NumPad6,Keys.NumPad7,Keys.NumPad8,Keys.NumPad9
             };
 
-            public Conversation(int startingTrustLevel, List<QuestionPool> dialouge, int[] effectArray, bool useNumpadKeys)
+            public Conversation(List<QuestionPool> dialouge, int[] effectArray, int trustLevel, int positiveThreshold, int negativeThreshold, bool useNumpadKeys)
             {
-                this.startingTrustLevel = startingTrustLevel;
+                this.trustLevel = trustLevel;
+                this.positiveThreshold = positiveThreshold;
+                this.negativeThreshold = negativeThreshold;
                 this.dialouge = dialouge;
                 effectValues = new Dictionary<QuestionAndAnswer.QuestionEffect, int>()
                 {
                     { QuestionAndAnswer.QuestionEffect.NEGATIVE, effectArray[0] },
                     { QuestionAndAnswer.QuestionEffect.NEUTRAL, effectArray[1] },
                     { QuestionAndAnswer.QuestionEffect.POSITIVE, effectArray[2] },
+                };
+                if (useNumpadKeys)
+                {
+                    validKeys = numpadKeys;
+                }
+            }
+            public Conversation(List<QuestionPool> dialouge, bool useNumpadKeys)
+            {
+                trustLevel = 10;
+                this.dialouge = dialouge;
+                effectValues = new Dictionary<QuestionAndAnswer.QuestionEffect, int>()
+                {
+                    { QuestionAndAnswer.QuestionEffect.NEGATIVE, -2},
+                    { QuestionAndAnswer.QuestionEffect.NEUTRAL, 0},
+                    { QuestionAndAnswer.QuestionEffect.POSITIVE, 2},
                 };
                 if (useNumpadKeys)
                 {
@@ -112,7 +130,7 @@ namespace MysteriousCallouts
                         numberOfNegative++;
                         break;
                 }
-                startingTrustLevel -= effectValues[effect];
+                trustLevel -= effectValues[effect];
             }
             
             public int WaitForValidKeyPress(QuestionPool q)
@@ -148,6 +166,51 @@ namespace MysteriousCallouts
                         AffectTrustLevel(q.GetEffect(indexPressed));
                     }
                 });
+            }
+
+            public void Run(Action[] arrayOfEffects)
+            {
+                GameFiber.StartNew(delegate
+                {
+                    foreach (QuestionPool q in dialouge)
+                    {
+                        Game.DisplayHelp(q.DisplayQuestions(),10000);
+                        int indexPressed = WaitForValidKeyPress(q);
+                        Game.HideHelp();
+                        Game.DisplaySubtitle(q.GetAnswer(indexPressed));
+                        AffectTrustLevel(q.GetEffect(indexPressed));
+                    }
+                    
+                    QuestionAndAnswer.QuestionEffect calculatedEffect = CalculateEffect();
+                    switch (calculatedEffect)
+                    {
+                        case QuestionAndAnswer.QuestionEffect.POSITIVE:
+                            arrayOfEffects[2]();
+                            break;
+                        case QuestionAndAnswer.QuestionEffect.NEUTRAL:
+                            arrayOfEffects[1]();
+                            break;
+                        case QuestionAndAnswer.QuestionEffect.NEGATIVE:
+                            arrayOfEffects[0]();
+                            break;
+                    }
+                });
+            }
+
+            public QuestionAndAnswer.QuestionEffect CalculateEffect()
+            {
+                if (trustLevel <= negativeThreshold)
+                {
+                    return QuestionAndAnswer.QuestionEffect.NEGATIVE;
+                }
+                else if (trustLevel < positiveThreshold && trustLevel > negativeThreshold)
+                {
+                    return QuestionAndAnswer.QuestionEffect.NEUTRAL;
+                }
+                else
+                {
+                    return QuestionAndAnswer.QuestionEffect.POSITIVE;
+                }
             }
 
             public void AddQuestionsToMenu(UIMenu menu, QuestionPool q)
