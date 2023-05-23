@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Rage;
+using RAGENativeUI;
+using RAGENativeUI.Elements;
 
 namespace MysteriousCallouts
 {
@@ -75,7 +77,12 @@ namespace MysteriousCallouts
                 Keys.D0, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9
             };
 
-            public Conversation(int startingTrustLevel, List<QuestionPool> dialouge, int[] effectArray)
+            static Keys[] numpadKeys = new[]
+            {
+                Keys.NumPad0,Keys.NumPad1,Keys.NumPad2,Keys.NumPad3,Keys.NumPad4,Keys.NumPad5,Keys.NumPad6,Keys.NumPad7,Keys.NumPad8,Keys.NumPad9
+            };
+
+            public Conversation(int startingTrustLevel, List<QuestionPool> dialouge, int[] effectArray, bool useNumpadKeys)
             {
                 this.startingTrustLevel = startingTrustLevel;
                 this.dialouge = dialouge;
@@ -85,6 +92,10 @@ namespace MysteriousCallouts
                     { QuestionAndAnswer.QuestionEffect.NEUTRAL, effectArray[1] },
                     { QuestionAndAnswer.QuestionEffect.POSITIVE, effectArray[2] },
                 };
+                if (useNumpadKeys)
+                {
+                    validKeys = numpadKeys;
+                }
             }
 
             public void AffectTrustLevel(QuestionAndAnswer.QuestionEffect effect)
@@ -139,6 +150,19 @@ namespace MysteriousCallouts
                 });
             }
 
+            public void AddQuestionsToMenu(UIMenu menu, QuestionPool q)
+            {
+                foreach (QuestionAndAnswer qanda in q.pool)
+                {
+                    menu.AddItem(new UIMenuItem(qanda.question));
+                }
+            }
+
+            public void OnItemSelect(int index, QuestionPool q)
+            {
+                Game.DisplaySubtitle(q.GetAnswer(index));
+                AffectTrustLevel(q.GetEffect(index));
+            }
         }
 
     }
