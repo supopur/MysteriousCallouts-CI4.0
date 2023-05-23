@@ -59,6 +59,7 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="AdvancedDialogueSystem.cs" />
         <Compile Include="Callouts\AnonymousTip.cs" />
         <Compile Include="Events\ActiveShooterEvent.cs" />
         <Compile Include="Events\BrokenDownVehicleEvent.cs" />
