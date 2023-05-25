@@ -59,8 +59,12 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="AdvancedDialogueSystem.cs" />
         <Compile Include="Callouts\AnonymousTip.cs" />
+        <Compile Include="DialogueSystem\Conversation.cs" />
+        <Compile Include="DialogueSystem\QuestionAndAnswer.cs" />
+        <Compile Include="DialogueSystem\QuestionEffect.cs" />
+        <Compile Include="DialogueSystem\QuestionPool.cs" />
+        <Compile Include="DialogueSystem\TrustSystem.cs" />
         <Compile Include="Events\ActiveShooterEvent.cs" />
         <Compile Include="Events\BrokenDownVehicleEvent.cs" />
         <Compile Include="Events\KidnappingEvent.cs" />
