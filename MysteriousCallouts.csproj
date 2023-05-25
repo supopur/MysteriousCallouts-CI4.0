@@ -35,6 +35,9 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="DialogueSystem">
+          <HintPath>..\DialogueSystem\bin\Debug\DialogueSystem.dll</HintPath>
+        </Reference>
         <Reference Include="LSPD First Response">
           <HintPath>D:\SteamLibrary\steamapps\common\Grand Theft Auto V\Plugins\LSPD First Response.dll</HintPath>
         </Reference>
@@ -60,11 +63,6 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Callouts\AnonymousTip.cs" />
-        <Compile Include="DialogueSystem\Conversation.cs" />
-        <Compile Include="DialogueSystem\QuestionAndAnswer.cs" />
-        <Compile Include="DialogueSystem\QuestionEffect.cs" />
-        <Compile Include="DialogueSystem\QuestionPool.cs" />
-        <Compile Include="DialogueSystem\TrustSystem.cs" />
         <Compile Include="Events\ActiveShooterEvent.cs" />
         <Compile Include="Events\BrokenDownVehicleEvent.cs" />
         <Compile Include="Events\KidnappingEvent.cs" />
