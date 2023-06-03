@@ -1,97 +1,105 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-    <PropertyGroup>
-        <LangVersion>10.0</LangVersion>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{01C56430-EF88-4772-BB9F-6568390B12C0}</ProjectGuid>
-        <OutputType>Library</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>MysteriousCallouts</RootNamespace>
-        <AssemblyName>MysteriousCallouts</AssemblyName>
-        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <LangVersion>10.0</LangVersion>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <LangVersion>10.0</LangVersion>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="DialogueSystem">
-          <HintPath>..\DialogueSystem\bin\Debug\DialogueSystem.dll</HintPath>
-        </Reference>
-        <Reference Include="LSPD First Response">
-          <HintPath>D:\SteamLibrary\steamapps\common\Grand Theft Auto V\Plugins\LSPD First Response.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.CSharp" />
-        <Reference Include="RAGENativeUI, Version=1.9.2.0, Culture=neutral, processorArchitecture=Amd64">
-          <HintPath>packages\RAGENativeUI.1.9.2\lib\net472\RAGENativeUI.dll</HintPath>
-        </Reference>
-        <Reference Include="RagePluginHook">
-          <HintPath>packages\RagePluginHook.1.98.0\lib\net472\RagePluginHook.dll</HintPath>
-        </Reference>
-        <Reference Include="RagePluginHook, Version=0.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-          <HintPath>packages\RagePluginHook.1.98.0\lib\net472\RagePluginHook.dll</HintPath>
-        </Reference>
-        <Reference Include="StopThePed">
-          <HintPath>D:\SteamLibrary\steamapps\common\Grand Theft Auto V\Plugins\LSPDFR\StopThePed.dll</HintPath>
-        </Reference>
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Drawing" />
-        <Reference Include="System.Windows.Forms" />
-        <Reference Include="System.Xml" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Callouts\AnonymousTip.cs" />
-        <Compile Include="Events\ActiveShooterEvent.cs" />
-        <Compile Include="Events\BrokenDownVehicleEvent.cs" />
-        <Compile Include="Events\KidnappingEvent.cs" />
-        <Compile Include="HelperMethods.cs" />
-        <Compile Include="HelperSystems\Citizen.cs" />
-        <Compile Include="HelperSystems\DecisionTree.cs" />
-        <Compile Include="HelperSystems\DialogueSystem.cs" />
-        <Compile Include="HelperSystems\IPHelper.cs" />
-        <Compile Include="HelperSystems\Logger.cs" />
-        <Compile Include="HelperSystems\Scaleforms\LetterScraps.cs" />
-        <Compile Include="HelperSystems\Scaleforms\Movie.cs" />
-        <Compile Include="HelperSystems\Scaleforms\PsychologyReport.cs" />
-        <Compile Include="HelperSystems\Scaleforms\ScaleformHandler.cs" />
-        <Compile Include="Main.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <None Include="packages.config" />
-    </ItemGroup>
-    <ItemGroup>
-      <Content Include=".gitignore" />
-    </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <LangVersion>10.0</LangVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{01C56430-EF88-4772-BB9F-6568390B12C0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MysteriousCallouts</RootNamespace>
+    <AssemblyName>MysteriousCallouts</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>10.0</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>10.0</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CalloutInterfaceAPI">
+      <HintPath>..\..\..\..\Documents\References\CalloutInterfaceAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="DialogueSystem">
+      <HintPath>..\DialogueSystem\bin\Debug\DialogueSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="LSPD First Response">
+      <HintPath>..\..\..\..\Documents\References\LSPD First Response.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="RAGENativeUI, Version=1.9.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\..\..\..\Documents\References\RAGENativeUI.dll</HintPath>
+    </Reference>
+    <Reference Include="RagePluginHook">
+      <HintPath>..\..\..\..\..\..\Program Files\Epic Games\GTAV\RAGEPluginHook.exe</HintPath>
+    </Reference>
+    <Reference Include="RagePluginHook, Version=0.0.0.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>packages\RagePluginHook.1.98.0\lib\net472\RagePluginHook.dll</HintPath>
+    </Reference>
+    <Reference Include="RagePluginHookSDK">
+      <HintPath>..\..\..\..\Documents\References\RagePluginHookSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="StopThePed">
+      <HintPath>..\..\..\..\Documents\References\StopThePed.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UltimateBackup">
+      <HintPath>..\..\..\..\Documents\References\UltimateBackup.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Callouts\AnonymousTip.cs" />
+    <Compile Include="Events\ActiveShooterEvent.cs" />
+    <Compile Include="Events\BrokenDownVehicleEvent.cs" />
+    <Compile Include="Events\KidnappingEvent.cs" />
+    <Compile Include="HelperMethods.cs" />
+    <Compile Include="HelperSystems\Citizen.cs" />
+    <Compile Include="HelperSystems\DecisionTree.cs" />
+    <Compile Include="HelperSystems\DialogueSystem.cs" />
+    <Compile Include="HelperSystems\IPHelper.cs" />
+    <Compile Include="HelperSystems\Logger.cs" />
+    <Compile Include="HelperSystems\Scaleforms\LetterScraps.cs" />
+    <Compile Include="HelperSystems\Scaleforms\Movie.cs" />
+    <Compile Include="HelperSystems\Scaleforms\PsychologyReport.cs" />
+    <Compile Include="HelperSystems\Scaleforms\ScaleformHandler.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
     </Target>
     <Target Name="AfterBuild">
     </Target>
     -->
-
 </Project>

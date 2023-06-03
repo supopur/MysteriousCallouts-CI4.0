@@ -9,10 +9,11 @@ using MysteriousCallouts.HelperSystems.Scaleforms;
 using Rage;
 using Rage.Attributes;
 using Rage.Native;
+using CalloutInterfaceAPI;
 
 namespace MysteriousCallouts.Callouts
 {
-    [CalloutInfo("Anonymous Tip", CalloutProbability.Low)]
+    [CalloutInterface("Anonymous Tip", CalloutProbability.Low, "Tip of a location of a wanted felon.", "Code 3", "FIB IAA")]
     internal class AnonymousTip : Callout
     {
         internal static Random rndm = new Random(DateTime.Now.Millisecond);
