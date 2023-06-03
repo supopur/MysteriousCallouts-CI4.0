@@ -37,6 +37,7 @@ namespace MysteriousCallouts.Callouts
         }
 
         // Callout Process
+        // Why would you want to unpause the game if the console is open WHYYYY
         public override void Process()
         {
             // Resume game if console is open
@@ -52,14 +53,17 @@ namespace MysteriousCallouts.Callouts
         {
             // Get encrypted IP and copy it to the clipboard
             EncryptedIP = IPHelper.GetEncryptedIP();
+            // What even is this function
             Game.SetClipboardText(EncryptedIP);
+            
 
             // Log and display notification with the tip message and encrypted IP
             Logger.Normal("OnCalloutAccepted() in AnonymousTip.cs", $"Encrypted IP: {EncryptedIP}");
             string tipMSG = $"{KidnappingEvent.GetRandomTip()} Complete the objective or suffer the consequences. Here is your first clue: {EncryptedIP}";
             msg = tipMSG;
+            
             Game.DisplayNotification("mparcadecabinetgrid", "phone_anim_1", "NOTIFICATION", $"By {KidnappingEvent.GetRandomPhoneNumber()}", tipMSG);
-
+            CalloutInterfaceAPI.Functions.SendMessage(this, "Anonymous tip received. Objective: Find the wanted felon. Clue: Encrypted IP");
             // Initiate the callout
             Callout();
             return base.OnCalloutAccepted();
@@ -83,11 +87,13 @@ namespace MysteriousCallouts.Callouts
                 // Check if a broken down vehicle spawn point can be found
                 if (BrokenDownVehicleEvent.FindSpawnPoint())
                 {
+                    CalloutInterfaceAPI.Functions.SendMessage(this, "Broken down vehicle reported by RP possible relation to this callout.");
                     // Spawn and trigger the broken down vehicle event
                     BrokenDownVehicleEvent.Spawning();
                     BrokenDownVehicleEvent.MainEvent();
+                    
                 }
-
+                CalloutInterfaceAPI.Functions.SendMessage(this, "Mission completed successfully");
                 // End the callout
                 End();
             });
@@ -100,7 +106,7 @@ namespace MysteriousCallouts.Callouts
         internal static bool IsDecryptionSuccessful() => SuccessfulDecryption;
 
         // Start the decryption process
-        internal static void StartDecryptionProcess()
+        public void StartDecryptionProcess()
         {
             IPHelper.HelpWithDecryption();
 
@@ -121,6 +127,7 @@ namespace MysteriousCallouts.Callouts
             /*SuccessfulIPPing = false;
             SuccessfulDecryption = false;
             */
+            CalloutInterfaceAPI.Functions.SendMessage(this, "Decryption of IP adress completed");
         }
 
         // Delete all blips
